@@ -71,6 +71,22 @@ class UserServices {
       return false;
     }
   };
+  upsertUser = async (query: FilterQuery<UserDocument>, update: object) => {
+    try {
+      const user = await User.findOneAndUpdate(query, update, {
+        new: true,
+        upsert: true,
+      });
+      return omit(user?.toJSON, [
+        "_v",
+        "forgotPasswordToken",
+        "forgotPasswordHash",
+        "forgotPasswordExpiry",
+      ]);
+    } catch (error: any) {
+      return false;
+    }
+  };
 }
 
 export default new UserServices();

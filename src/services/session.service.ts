@@ -32,6 +32,13 @@ class SessionService {
       return false;
     }
   };
+  deleteSession = async (query: FilterQuery<SessionDocument>) => {
+    try {
+      return await Session.findOneAndDelete(query);
+    } catch (error: any) {
+      return false;
+    }
+  };
 }
 
 export default new SessionService();

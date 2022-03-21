@@ -1,6 +1,7 @@
 // importing modules
 import { Request, Response, NextFunction } from "express";
 import { get, omit } from "lodash";
+import config from "config";
 
 // importing files
 import BigPromise from "../utils/BigPromise";
@@ -10,6 +11,7 @@ import CustomErrorHandler from "../utils/CustomErrorHandler";
 import Session from "../services/session.service";
 import setCookies from "../utils/setCookies";
 import { LoginInput } from "../schemas/login.schema";
+import Google from "../services/googleAuth.service";
 
 class AuthController {
   register = BigPromise(
@@ -91,11 +93,77 @@ class AuthController {
   );
 
   googleAuth = BigPromise(
-    async (req: Request, res: Response, next: NextFunction) => {}
+    async (req: Request, res: Response, next: NextFunction) => {
+      // getting the code from req.query
+      const code = get(req, "query.code");
+      // fetching user tokens from google
+      const { access_token, id_token } = await Google.getGoogleUserTokens(code);
+
+      // fetching user details from google
+      const userDetails = await Google.getGoogleUserDetails(
+        access_token,
+        id_token
+      );
+
+      // check if user's email verified or not
+      if (!userDetails.verified_email)
+        return next(CustomErrorHandler.unauthorized("email is not verified"));
+
+      // create or update user
+      const user = await User.upsertUser(
+        { email: userDetails.email },
+        {
+          name: userDetails.name,
+          email: userDetails.email,
+          avatar: {
+            public_id: "",
+            secure_url: userDetails.picture,
+          },
+        }
+      );
+      if (!user) return next(CustomErrorHandler.wentWrong());
+
+      // create session
+      const session = await Session.upsertSession(
+        { user: get(user, "_id"), userAgent: req.get("user-agent") || "" },
+        { user: get(user, "_id"), userAgent: req.get("user-agent") || "" }
+      );
+      if (!session) return next(CustomErrorHandler.wentWrong());
+
+      // creating token and set cookies
+      await setCookies(user, get(session, "_id"), res);
+
+      // redirecting to home page
+      return res.redirect(config.get<string>("frontend_url"));
+    }
   );
 
   logout = BigPromise(
-    async (req: Request, res: Response, next: NextFunction) => {}
+    async (req: Request, res: Response, next: NextFunction) => {
+      // get the user from cookie
+      const DecodedUser = get(res, "locals.user");
+
+      // check if the user exist in db
+      const user = await User.findUser({ _id: get(DecodedUser, "_id") });
+      if (!user) return next(CustomErrorHandler.unauthorized());
+
+      // find the session and delete
+      const session = await Session.deleteSession({
+        user: get(user, "_id"),
+        userAgent: req.get("user-agent") || "",
+      });
+      if (!session) return next(CustomErrorHandler.unauthorized());
+
+      // clear cookies
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      // sending response
+      return res.status(200).json({
+        success: true,
+        message: "user logged out successfully",
+      });
+    }
   );
 }
 

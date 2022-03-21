@@ -13,4 +13,8 @@ export default {
   refresh_token_expiry: 1000 * 60 * 60 * 24 * 365,
   access_token_cookie_expiry: 1000 * 60 * 60 * 24 * 365,
   refresh_token_cookie_expiry: 1000 * 60 * 60 * 24 * 365,
+  google_client_id: process.env.GOOGLE_CLIENT_ID,
+  google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  google_token_uri: process.env.GOOGLE_TOKEN_URI,
+  redirect_uri: process.env.REDIRECT_URI,
 };
