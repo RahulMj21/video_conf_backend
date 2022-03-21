@@ -160,7 +160,7 @@ class UserController {
       if (!user)
         return next(CustomErrorHandler.badRequest("email is not registered"));
 
-      // const forgotPasswordToken= user.getForgotPasswordToken()
+      const forgotPasswordToken = user.getForgotPasswordToken();
 
       // send email logic will goes here ; 👇👇👇👇👇👇👇👇
 

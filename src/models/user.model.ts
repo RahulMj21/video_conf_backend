@@ -24,6 +24,8 @@ export interface UserDocument extends UserInput, mongoose.Document {
   forgotPasswordExpiry: Number;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(password: string): Promise<Boolean>;
+  getForgotPasswordToken(): string;
 }
 
 const userSchema = new Schema(
