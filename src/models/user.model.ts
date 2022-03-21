@@ -19,8 +19,9 @@ export interface UserDocument extends UserInput, mongoose.Document {
   };
   isLoggedInWithGoogle: Boolean;
   role: string;
-  ForgotPasswordToken: string;
-  ForgotPasswordExpiry: Number;
+  forgotPasswordToken: string;
+  forgotPasswordHash: string;
+  forgotPasswordExpiry: Number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,8 +37,9 @@ const userSchema = new Schema(
     },
     isLoggedInWithGoogle: { type: Boolean, default: false },
     role: { type: String, default: "User" },
-    ForgotPasswordToken: { type: String, required: false },
-    ForgotPasswordExpiry: { type: Number, required: false },
+    forgotPasswordToken: { type: String, required: false },
+    forgotPasswordHash: { type: String, required: false },
+    forgotPasswordExpiry: { type: Number, required: false },
   },
   {
     timestamps: true,
@@ -70,8 +72,9 @@ userSchema.methods.getForgotPasswordToken = async function () {
     .update(data)
     .digest("hex");
 
-  user.ForgotPasswordToken = hash;
-  user.ForgotPasswordExpiry = expiry;
+  user.forgotPasswordToken = randomString;
+  user.forgotPasswordHash = hash;
+  user.forgotPasswordExpiry = expiry;
   user.save();
 
   return randomString;

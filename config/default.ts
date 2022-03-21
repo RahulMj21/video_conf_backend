@@ -5,4 +5,12 @@ export default {
   log_level: "info",
   salt: 10,
   forgot_password_token_secret: process.env.FORGOT_PASSWORD_TOKEN_SECRET,
+  access_token_public_key: process.env.ACCESS_TOKEN_PUBLIC_KEY,
+  access_token_private_key: process.env.ACCESS_TOKEN_PRIVATE_KEY,
+  refresh_token_public_key: process.env.REFRESH_TOKEN_PUBLIC_KEY,
+  refresh_token_private_key: process.env.REFRESH_TOKEN_PRIVATE_KEY,
+  access_token_expiry: 1000 * 60 * 60,
+  refresh_token_expiry: 1000 * 60 * 60 * 24 * 365,
+  access_token_cookie_expiry: 1000 * 60 * 60 * 24 * 365,
+  refresh_token_cookie_expiry: 1000 * 60 * 60 * 24 * 365,
 };
