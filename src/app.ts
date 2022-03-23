@@ -7,6 +7,7 @@ import express from "express";
 import cors from "cors";
 import config from "config";
 import fileUpload from "express-fileupload";
+import cloudinary from "cloudinary";
 
 //importing files
 import { authRoute, roomRoute, testRoute, userRoute } from "./routes";
@@ -29,6 +30,12 @@ const fileUploadConfig = {
 app.use(fileUpload(fileUploadConfig));
 
 // cloudinary config
+// cloudinary config
+cloudinary.v2.config({
+  cloud_name: config.get<string>("cloudinary_cloud_name"),
+  api_key: config.get<string>("cloudinary_api_key"),
+  api_secret: config.get<string>("cloudinary_api_secret"),
+});
 
 // api routes
 app.use("/api/v1", testRoute);

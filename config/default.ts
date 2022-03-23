@@ -17,4 +17,7 @@ export default {
   google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
   google_token_uri: process.env.GOOGLE_TOKEN_URI,
   redirect_uri: process.env.REDIRECT_URI,
+  cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
+  cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
 };
