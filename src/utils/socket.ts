@@ -2,6 +2,7 @@
 import http from "http";
 import { Server } from "socket.io";
 import config from "config";
+import logger from "./logger";
 
 export interface User {
   _id: string;
@@ -20,7 +21,7 @@ const socket = (server: http.Server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("Socket connected");
+    logger.info("Socket connected");
 
     // handling join event 👇👇👇👇👇👇
     socket.on("join", ({ roomId, user }: { roomId: string; user: User }) => {
