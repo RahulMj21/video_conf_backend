@@ -51,7 +51,6 @@ class AuthController {
       return res.status(200).json({
         success: true,
         message: "user registered successfully",
-        user,
       });
     }
   );
@@ -62,10 +61,14 @@ class AuthController {
       res: Response,
       next: NextFunction
     ) => {
+      const { email, password } = get(req, "body");
+      if (!email || !password)
+        return next(new CustomErrorHandler(422, "all fields are required"));
+
       // check if the user already exists
       const user = await User.findUserAndComparePass(req.body);
       if (!user)
-        return next(CustomErrorHandler.conflict("email already taken"));
+        return next(CustomErrorHandler.badRequest("wrong email or password"));
 
       // create session
       const session = await Session.upsertSession(
@@ -87,7 +90,6 @@ class AuthController {
       return res.status(200).json({
         success: true,
         message: "user logged in successfully",
-        user,
       });
     }
   );

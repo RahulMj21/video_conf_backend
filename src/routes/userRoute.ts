@@ -18,14 +18,14 @@ router.route("/forgotpassword").get(UserController.forgotPassword);
 
 // put routes
 router
-  .route("/user/updateprofile")
+  .route("/updateprofile")
   .put(deserializeUser, UserController.updateProfile);
 router
-  .route("/user/updatepassword")
+  .route("/updatepassword")
   .put(
     deserializeUser,
     validateResources(updatePasswordSchema),
-    UserController.updateProfile
+    UserController.updatePassword
   );
 router
   .route("/resetpassword/:token")

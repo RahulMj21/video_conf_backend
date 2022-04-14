@@ -13,7 +13,8 @@ const deserializeUser = BigPromise(
     // getting token from the request
     const accessToken =
       get(req, "cookies.accessToken") ||
-      get(req, "headers.authorization").replace(/^Bearer\s/, "") ||
+      (get(req, "headers.authorization") &&
+        get(req, "headers.authorization").replace(/^Bearer\s/, "")) ||
       null;
     const refreshToken =
       get(req, "cookies.refreshToken") || get(req, "headers.x-refresh") || null;

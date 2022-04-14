@@ -12,7 +12,8 @@ class UserServices {
       const user = await User.create(input);
       return omit(user.toJSON(), [
         "password",
-        "_v",
+        "__v",
+        "updatedAt",
         "forgotPasswordToken",
         "forgotPasswordExpiry",
         "forgotPasswordHash",
@@ -37,10 +38,11 @@ class UserServices {
       return users.map((user) =>
         omit(user.toJSON(), [
           "password",
-          "_v",
+          "__v",
+          "updatedAt",
           "forgotPasswordToken",
-          "forgotPasswordHash",
           "forgotPasswordExpiry",
+          "forgotPasswordHash",
         ])
       );
     } catch (error: any) {
@@ -62,7 +64,8 @@ class UserServices {
 
       return omit(user.toJSON(), [
         "password",
-        "_v",
+        "__v",
+        "updatedAt",
         "forgotPasswordToken",
         "forgotPasswordExpiry",
         "forgotPasswordHash",
@@ -78,10 +81,11 @@ class UserServices {
         upsert: true,
       });
       return omit(user?.toJSON, [
-        "_v",
+        "__v",
+        "updatedAt",
         "forgotPasswordToken",
-        "forgotPasswordHash",
         "forgotPasswordExpiry",
+        "forgotPasswordHash",
       ]);
     } catch (error: any) {
       return false;

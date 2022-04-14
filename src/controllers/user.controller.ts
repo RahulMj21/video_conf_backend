@@ -9,6 +9,7 @@ import CustomErrorHandler from "../utils/CustomErrorHandler";
 import User from "../services/user.service";
 import { UpdatePasswordInput } from "../schemas/updatePassword.schema";
 import { ResetPasswordInput } from "../schemas/resetPassword";
+import { z } from "zod";
 
 class UserController {
   getAllUsers = BigPromise(
@@ -56,7 +57,8 @@ class UserController {
         success: true,
         user: omit(user.toJSON(), [
           "password",
-          "_v",
+          "updatedAt",
+          "__v",
           "forgotPasswordToken",
           "forgotPasswordHash",
           "forgotPasswordExpiry",
@@ -66,14 +68,26 @@ class UserController {
   );
   updateProfile = BigPromise(
     async (req: Request, res: Response, next: NextFunction) => {
+      const decodedUser = get(res, "locals.user");
       // get the name email avatar? from the req.body
       const avatar = get(req, "files.avatar") || get(req, "body.avatar");
       const { email, name }: { email: string; name: string } = get(req, "body");
       if (!email && !name && !avatar)
         return next(CustomErrorHandler.badRequest("nothing to update"));
 
+      // validating email if present
+      if (email) {
+        const EmailSchema = z.string().email("please enter a valid email");
+        try {
+          EmailSchema.parse(email);
+        } catch (error: any) {
+          const err = JSON.parse(error.message);
+          return next(new CustomErrorHandler(422, err[0].message));
+        }
+      }
+
       // find the user
-      const user = await User.findUser({ email: email });
+      const user = await User.findUser({ _id: decodedUser._id });
       if (!user) return next(CustomErrorHandler.notFound("user not found"));
 
       // handling avatar
@@ -113,7 +127,8 @@ class UserController {
         message: "profile updated successfully",
         user: omit(user.toJSON(), [
           "password",
-          "_v",
+          "__v",
+          "updatedAt",
           "forgotPasswordToken",
           "forgotPasswordHash",
           "forgotPasswordExpiry",
