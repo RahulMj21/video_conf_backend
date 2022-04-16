@@ -11,6 +11,7 @@ export interface RoomInput {
   roomCreator: UserDocument["_id"];
 }
 export interface RoomDocument extends RoomInput {
+  clients: Number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +27,7 @@ const roomSchema = new Schema(
       ref: "User",
       required: true,
     },
+    clients: { type: Number, default: 0 },
   },
   {
     timestamps: true,

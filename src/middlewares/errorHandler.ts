@@ -10,7 +10,7 @@ const errorHandler = (
   let statusCode = 500;
   let message = "Internal server error";
 
-  console.log("err->>", error);
+  // console.log("err->>", error);
 
   if (error?.statusCode) {
     statusCode = error.statusCode;

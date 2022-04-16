@@ -3,6 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import config from "config";
 import logger from "./logger";
+import Room from "../services/room.service";
 
 export interface User {
   _id: string;
@@ -24,22 +25,27 @@ const socket = (server: http.Server) => {
     logger.info("Socket connected");
 
     // handling join event 👇👇👇👇👇👇
-    socket.on("join", ({ roomId, user }: { roomId: string; user: User }) => {
-      socketUserMaping[socket.id] = user;
-      const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
-      clients.map((client) => {
-        io.to(client).emit("add_peer", {
-          socketId: socket.id,
-          createOffer: false,
-          user,
+    socket.on(
+      "join",
+      async ({ roomId, user }: { roomId: string; user: User }) => {
+        socketUserMaping[socket.id] = user;
+        const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+        clients.map((client) => {
+          io.to(client).emit("add_peer", {
+            socketId: socket.id,
+            createOffer: false,
+            user,
+          });
+          socket.emit("add_peer", {
+            socketId: client,
+            createOffer: true,
+            user: socketUserMaping[client],
+          });
         });
-        socket.emit("add_peer", {
-          socketId: client,
-          createOffer: true,
-          user: socketUserMaping[client],
-        });
-      });
-    });
+        socket.join(roomId);
+        await Room.addClient(roomId);
+      }
+    );
 
     // handling new icecandidate event 👇👇👇👇👇👇
     socket.on(
@@ -115,7 +121,9 @@ const socket = (server: http.Server) => {
             userId: socketUserMaping[client]?._id,
           });
         });
+        socket.leave(room);
       });
+      delete socketUserMaping[socket.id];
     };
 
     // listning for leaveroom 👇👇👇👇👇👇

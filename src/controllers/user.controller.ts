@@ -159,7 +159,7 @@ class UserController {
 
       return res
         .status(200)
-        .json({ success: true, message: "password updated successfully" });
+        .json({ success: true, message: "password updated" });
     }
   );
   forgotPassword = BigPromise(

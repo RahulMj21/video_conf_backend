@@ -11,9 +11,9 @@ class RoomController {
   createRoom = BigPromise(
     async (req: Request, res: Response, next: NextFunction) => {
       // getting the room name from the req.body
-      const roomName: string = get(req, "body,roomName");
+      const roomName: string = get(req, "body.roomName");
       if (!roomName)
-        return next(CustomErrorHandler.badRequest("please a room name"));
+        return next(CustomErrorHandler.badRequest("please provide room name"));
 
       // getting the user from cookie
       const user = get(res, "locals.user");
@@ -25,7 +25,7 @@ class RoomController {
       return res.status(200).json({
         success: true,
         message: "room created successfully",
-        room,
+        roomId: room._id,
       });
     }
   );
