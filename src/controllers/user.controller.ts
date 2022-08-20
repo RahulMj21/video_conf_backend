@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import { get, omit } from "lodash";
 import cloudinary from "cloudinary";
+import config from "config";
 
 // importing files
 import BigPromise from "../utils/BigPromise";
@@ -10,6 +11,7 @@ import User from "../services/user.service";
 import { UpdatePasswordInput } from "../schemas/updatePassword.schema";
 import { ResetPasswordInput } from "../schemas/resetPassword";
 import { z } from "zod";
+import sendMail from "../utils/sendMail";
 
 class UserController {
   getAllUsers = BigPromise(
@@ -94,10 +96,10 @@ class UserController {
       if (avatar) {
         // removing the previus img from cloudinary
         if (user.avatar.public_id !== "") {
-          const destroidImg = await cloudinary.v2.uploader.destroy(
+          const destroyedImg = await cloudinary.v2.uploader.destroy(
             user.avatar.public_id
           );
-          if (!destroidImg) return next(CustomErrorHandler.wentWrong());
+          if (!destroyedImg) return next(CustomErrorHandler.wentWrong());
         }
 
         // adding new img in cloudinary
@@ -119,20 +121,12 @@ class UserController {
       // updating details
       user.email = email ? email : user.email;
       user.name = name ? name : user.name;
-      user.save();
+      await user.save({ validateBeforeSave: false });
 
       // send response
       return res.status(200).json({
         success: true,
-        message: "profile updated successfully",
-        user: omit(user.toJSON(), [
-          "password",
-          "__v",
-          "updatedAt",
-          "forgotPasswordToken",
-          "forgotPasswordHash",
-          "forgotPasswordExpiry",
-        ]),
+        message: "profile updated",
       });
     }
   );
@@ -175,14 +169,26 @@ class UserController {
       if (!user)
         return next(CustomErrorHandler.badRequest("email is not registered"));
 
-      const forgotPasswordToken = user.getForgotPasswordToken();
+      const forgotPasswordToken = await user.getForgotPasswordToken();
 
       // send email logic will goes here ; 👇👇👇👇👇👇👇👇
+      const link = `${config.get<string>(
+        "frontend_url"
+      )}/resetpassword/${forgotPasswordToken}`;
+      const data = {
+        to: email,
+        subject: "Password reset link from video_conf app.",
+        html: `<p>Click this below link or copy & paste the link in your browser</p>
+                <p><a href=${link}>${link}</a></p>  
+        `,
+      };
+      const info = await sendMail(data);
+      if (!info) return next(CustomErrorHandler.wentWrong());
 
       // sending response
       return res.status(200).json({
         success: true,
-        message: "password reset link sent to your email",
+        message: "check your email",
       });
     }
   );
@@ -210,8 +216,8 @@ class UserController {
         );
 
       // update password
-      user.password = req.body.password;
-      user.save();
+      user.password = req.body.newPassword;
+      await user.save();
 
       return res.status(200).json({
         success: true,

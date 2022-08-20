@@ -34,6 +34,7 @@ class GoogleAuth {
         client_id: config.get<string>("google_client_id"),
         client_secret: config.get<string>("google_client_secret"),
         redirect_uri: config.get<string>("redirect_uri"),
+        grant_type: "authorization_code",
       };
       const query = qs.stringify(options);
 
@@ -44,6 +45,7 @@ class GoogleAuth {
       });
       return res.data;
     } catch (error: any) {
+      // console.log("userToken : ", error);
       logger.error("google data fetching error");
       throw new Error("google data fetching error---> " + error.message);
     }
@@ -62,6 +64,7 @@ class GoogleAuth {
       });
       return res.data;
     } catch (error: any) {
+      // console.log("userDetails :", error);
       logger.error("google data fetching error");
       throw new Error("google data fetching error---> " + error.message);
     }

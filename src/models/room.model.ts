@@ -11,7 +11,7 @@ export interface RoomInput {
   roomCreator: UserDocument["_id"];
 }
 export interface RoomDocument extends RoomInput {
-  clients: Number;
+  clients: number;
   createdAt: Date;
   updatedAt: Date;
 }

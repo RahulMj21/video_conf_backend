@@ -50,7 +50,7 @@ class AuthController {
       // send response
       return res.status(200).json({
         success: true,
-        message: "successfully registered",
+        message: `Welcome ${user.name}`,
       });
     }
   );
@@ -89,7 +89,7 @@ class AuthController {
       // send response
       return res.status(200).json({
         success: true,
-        message: "logged in successfully",
+        message: `welcome ${user.name}`,
       });
     }
   );
@@ -121,10 +121,10 @@ class AuthController {
             public_id: "",
             secure_url: userDetails.picture,
           },
+          isLoggedInWithGoogle: true,
         }
       );
       if (!user) return next(CustomErrorHandler.wentWrong());
-
       // create session
       const session = await Session.upsertSession(
         { user: get(user, "_id"), userAgent: req.get("user-agent") || "" },
@@ -133,10 +133,10 @@ class AuthController {
       if (!session) return next(CustomErrorHandler.wentWrong());
 
       // creating token and set cookies
-      await setCookies(user, get(session, "_id"), res);
+      await setCookies(user, session._id, res);
 
       // redirecting to home page
-      return res.redirect(config.get<string>("frontend_url"));
+      return res.redirect(`${config.get<string>("frontend_url")}`);
     }
   );
 

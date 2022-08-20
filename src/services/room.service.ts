@@ -15,7 +15,7 @@ class RoomService {
   }
   async findAllRooms() {
     try {
-      const rooms = await Room.find().populate({
+      const rooms = await Room.find().select("-clientList").populate({
         path: "roomCreator",
         select: "name _id avatar",
       });

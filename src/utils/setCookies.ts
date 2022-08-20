@@ -31,7 +31,6 @@ const setCookies = async (
   );
   const cookieOptions = {
     secure: false,
-    maxAge: config.get<number>("access_token_cookie_expiry"),
     httpOnly: true,
     path: "/",
   };

@@ -14,7 +14,7 @@ const router = express.Router();
 router.route("/me").get(deserializeUser, UserController.getCurrentUser);
 router.route("/users").get(deserializeUser, UserController.getAllUsers);
 router.route("/user/:id").get(deserializeUser, UserController.getSingleUser);
-router.route("/forgotpassword").get(UserController.forgotPassword);
+router.route("/forgotpassword").post(UserController.forgotPassword);
 
 // put routes
 router

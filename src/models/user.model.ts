@@ -11,6 +11,15 @@ export interface UserInput {
   email: string;
   password: string;
 }
+export interface GoogleUserInput {
+  name: string;
+  email: string;
+  avatar: {
+    public_id: string;
+    secure_url: string;
+  };
+  isLoggedInWithGoogle: boolean;
+}
 
 export interface UserDocument extends UserInput, mongoose.Document {
   avatar: {
@@ -59,7 +68,10 @@ userSchema.pre("save", async function (next) {
 // compare password
 userSchema.methods.comparePassword = async function (password: string) {
   const user = this as UserDocument;
-  return bcrypt.compare(password, user.password).catch((err: any) => false);
+  const result = await bcrypt
+    .compare(password, user.password)
+    .catch((err: any) => false);
+  return result;
 };
 
 // forgot password

@@ -3,7 +3,11 @@ import { omit } from "lodash";
 import { DocumentDefinition, FilterQuery } from "mongoose";
 
 // importing files
-import User, { UserDocument, UserInput } from "../models/user.model";
+import User, {
+  GoogleUserInput,
+  UserDocument,
+  UserInput,
+} from "../models/user.model";
 
 // Methods[services]
 class UserServices {
@@ -59,7 +63,7 @@ class UserServices {
     try {
       const user = await User.findOne({ email });
       if (!user) return false;
-      const isPasswordMatched = user.comparePassword(password);
+      const isPasswordMatched = await user.comparePassword(password);
       if (!isPasswordMatched) return false;
 
       return omit(user.toJSON(), [
@@ -74,14 +78,19 @@ class UserServices {
       return false;
     }
   };
-  upsertUser = async (query: FilterQuery<UserDocument>, update: object) => {
+  upsertUser = async (
+    query: FilterQuery<UserDocument>,
+    input: DocumentDefinition<GoogleUserInput>
+  ) => {
     try {
-      const user = await User.findOneAndUpdate(query, update, {
+      const user = await User.findOneAndUpdate(query, input, {
         new: true,
         upsert: true,
       });
-      return omit(user?.toJSON, [
+      if (!user) return false;
+      return omit(user.toJSON(), [
         "__v",
+        "password",
         "updatedAt",
         "forgotPasswordToken",
         "forgotPasswordExpiry",
